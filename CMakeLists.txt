@@ -1,6 +1,16 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(rpg_jason VERSION 0.1.0)
 
+# Enable Address Sanitizer
+# add_compile_options(-fsanitize=address)
+# add_link_options(-fsanitize=address)
+
+# Add sanitizer flags for C++ compiler for "Debug" configuration
+# set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fsanitize=fuzzer")
+
+# Enable CPPCHECK
+set(CMAKE_CXX_CPPCHECK "cppcheck")
+
 # Configure compiler to use C++latest
 set(CMAKE_CXX_STANDARD 23)
 

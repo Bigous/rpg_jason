@@ -4,7 +4,10 @@
         "CMAKE_TOOLCHAIN_FILE": "R:/Richard/src/lib/vcpkg/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_BUILD": "ON",
         //"VCPKG_TARGET_TRIPLET":"x64-windows-static"
-        "VCPKG_TARGET_TRIPLET":"x64-windows"
+        "VCPKG_TARGET_TRIPLET":"x64-windows",
+        "ENABLE_SANITIZER_ADDRESS":true,
+        "ENABLE_SANITIZER_UNDEFINED":true,
+        "ENABLE_CPPCHECK":true
     },
     "files.associations": {
         "atomic": "cpp",
@@ -88,5 +91,8 @@
         "xhash": "cpp",
         "condition_variable": "cpp",
         "cstdarg": "cpp"
-    }
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true
 }

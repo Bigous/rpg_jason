@@ -61,7 +61,10 @@ int main( [[maybe_unused]] int argc, [[maybe_unused]] char *argv[] )
 		float starty     = 240.0f / 480.0f * video.height;
 		float initRadius = 100.0f / 640.0f * video.width;
 
-		ImGui::SFML::Init( window, true );
+		if( !ImGui::SFML::Init( window, true ) ) {
+			spdlog::critical( "Impossível inicializar ImGui com SFML..." );
+			return 2;
+		}
 
 		constexpr auto scale_factor = 1.5;
 		ImGui::GetStyle().ScaleAllSizes( scale_factor );
@@ -98,6 +101,8 @@ int main( [[maybe_unused]] int argc, [[maybe_unused]] char *argv[] )
 						if( event.key.code == sf::Keyboard::Escape ) {
 							window.close();
 						}
+						break;
+					default:
 						break;
 				}
 			}
