@@ -7,7 +7,7 @@ AllowShortIfStatementsOnASingleLine: false
 IndentCaseLabels: true
 ColumnLimit: 120
 NamespaceIndentation: All
-AlignArrayOfStructures: Right
+AlignArrayOfStructures: Left
 AlignConsecutiveDeclarations: true
 AlignConsecutiveAssignments: true
 AlignEscapedNewlines: Left

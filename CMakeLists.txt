@@ -37,6 +37,9 @@ target_link_libraries(rpg_jason PRIVATE ImGui-SFML::ImGui-SFML)
 find_package(spdlog CONFIG REQUIRED)
 target_link_libraries(rpg_jason PRIVATE spdlog::spdlog spdlog::spdlog_header_only)
 
+find_package(docopt CONFIG REQUIRED)
+target_link_libraries(rpg_jason PRIVATE docopt)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

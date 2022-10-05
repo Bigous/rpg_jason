@@ -1,37 +1,88 @@
 #include <algorithm> // min e max
-#include <array>
 #include <cassert>  // assert
 #include <chrono>   // high_resolution_clock
 #include <iostream> // cout
 #include <numbers>  // pi
 #include <string>   // string and stod
-#include <vector>   // vector
-#include <unordered_map>
+#include <tuple>
+#include <vector> // vector
 
 #include <SFML/Graphics.hpp>
+#include <docopt/docopt.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 
-int main( [[maybe_unused]] int argc, [[maybe_unused]] char *argv[] )
+static constexpr auto USAGE = R"(C++ Weekly Game.
+
+	Usage:
+		rpg_jason [options]
+
+	Options:
+		-h --help          Show this screen.
+		--width=W          Screen width in pixels [default: 1024].
+		--height=H         Screen height in pixels [default: 768].
+		--scale=S          Scaling percent [default: 150].
+		--refresh-rate=R   Refresh rate limit [default: 60].
+)";
+
+/**
+ * @brief Process the command line arguments and sets into the correct variables.
+ * @param argc number of arguments in argv
+ * @param argv array of arguments
+ * @param width out variable of width
+ * @param height out variable of height
+ * @param scale out variable of scale
+ * @param fps_limit out variable of fps_limit (refresh rate)
+ * @return true
+ */
+bool get_command_options( int argc, char *argv[], unsigned int &width, unsigned int &height, float &scale,
+                          double &fps_limit )
+{
+	std::map< std::string, docopt::value > args =
+			docopt::docopt( USAGE, { std::next( argv ), std::next( argv, argc ) }, true, "Rpg Jason v0.1.0" );
+
+	width     = args["--width"].asLong();
+	height    = args["--height"].asLong();
+	scale     = args["--scale"].asLong() / 100.0f;
+	fps_limit = static_cast< double >( args["--refresh-rate"].asLong() );
+
+	width     = width < 640 ? 640 : width;
+	height    = height < 480 ? 480 : height;
+	scale     = scale < 1.0f ? 1.0f : scale > 5.0f ? 5.0f : scale;
+	fps_limit = fps_limit < 30.0 ? 30 : fps_limit > 600.0 ? 600.0 : fps_limit;
+
+	spdlog::info( "Parameter set: --width = {}", width );
+	spdlog::info( "Parameter set: --height = {}", height );
+	spdlog::info( "Parameter set: --scale = {}", scale );
+	spdlog::info( "Parameter set: --refresh-rate = {}", fps_limit );
+
+	return true;
+}
+
+int main( int argc, char *argv[] )
 {
 	spdlog::info( "Starting..." );
 	try {
 
-		[[maybe_unused]] std::vector< std::string > args( argv, argv + argc );
+		unsigned int width;
+		unsigned int height;
+		float        scale;
+		double       fps_limit;
 
-		double fps_limit = args.size() > 1 ? std::stod( args[1] ) : 60;
-
-		spdlog::info( "fps_limit: {}", fps_limit );
+		if( !get_command_options( argc, argv, width, height, scale, fps_limit ) ) {
+			spdlog::info( "Exiting..." );
+			abort();
+		}
 
 		sf::Font font;
 		if( !font.loadFromFile( "Resources/font.ttf" ) ) {
 			spdlog::critical( "Failed to load font: {}", "Resources/font.ttf" );
-			return 1;
+			abort();
 		}
 
 		// const auto &video = sf::VideoMode::getDesktopMode();
-		const auto video = sf::VideoMode{ 1024, 768 };
+		const auto video = sf::VideoMode{ width, height };
 
 		sf::RenderWindow window( video, "SFML + ImGui = <3" );
 		sf::Color        darkGrey{ 40, 40, 40, 255 };
@@ -67,9 +118,8 @@ int main( [[maybe_unused]] int argc, [[maybe_unused]] char *argv[] )
 			return 2;
 		}
 
-		constexpr auto scale_factor = 1.5;
-		ImGui::GetStyle().ScaleAllSizes( scale_factor );
-		ImGui::GetIO().FontGlobalScale = scale_factor;
+		ImGui::GetStyle().ScaleAllSizes( scale );
+		ImGui::GetIO().FontGlobalScale = scale;
 
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -82,21 +132,21 @@ int main( [[maybe_unused]] int argc, [[maybe_unused]] char *argv[] )
 		// ImGui::GetIO().Fonts->Build();
 		// ImGui::PushFont(font1);
 
-		std::unordered_map<std::string, bool> set_of_things {
-				{"The Plan", false},
-				{"Getting Started", false},
-				{"Finding Errors As Soon As Possible", false},
-				{"Handling Command Line PArameter", false},
-				{"C++ 20 So Far", false},
-				{"Reading SFML Input States", false},
-				{"Managing Game State", false},
-				{"Making Our Game Testable", false},
-				{"Making Game State Allocator Aware", false},
-				{"Add Logging To Game Engine", false},
-				{"Draw A Game Map", false},
-				{"Dialog Trees", false},
-				{"Porting from SFML To SDL", false}
-		};
+		std::vector< std::tuple< std::string, bool > > steps{
+				{"The Plan",														false},
+				{ "Getting Started",                    false},
+				{ "Finding Errors As Soon As Possible", false},
+				{ "Handling Command Line Parameter",    false},
+				{ "C++ 20 So Far",                      false},
+				{ "Reading SFML Input States",          false},
+				{ "Managing Game State",                false},
+				{ "Making Our Game Testable",           false},
+				{ "Making Game State Allocator Aware",  false},
+				{ "Add Logging To Game Engine",         false},
+				{ "Draw A Game Map",                    false},
+				{ "Dialog Trees",                       false},
+				{ "Porting from SFML To SDL",           false}
+    };
 
 		sf::Clock deltaClock;
 
@@ -136,9 +186,8 @@ int main( [[maybe_unused]] int argc, [[maybe_unused]] char *argv[] )
 				ImGui::ShowDemoWindow();
 
 				ImGui::Begin( "The Plan" );
-				int things_count = 0;
-				for(auto &[description, state] : set_of_things) {
-					ImGui::Checkbox(fmt::format("{} : {}", ++things_count, description).c_str(), &state);
+				for( int things_count = 0; auto &[description, state]: steps ) {
+					ImGui::Checkbox( fmt::format( "{} : {}", ++things_count, description ).c_str(), &state );
 				}
 				ImGui::End();
 
@@ -148,8 +197,7 @@ int main( [[maybe_unused]] int argc, [[maybe_unused]] char *argv[] )
 				float t = 2.0f * std::numbers::pi_v< float > / rects.size();
 				float r = initRadius * std::cos( 0.1f * a );
 
-				int i = 0;
-				for( auto &rect: rects ) {
+				for( int i = 0; auto &rect: rects ) {
 					const float ati = a + t * i;
 					rect.setPosition( { startx + r * std::cos( ati ), starty + r * std::sin( ati ) } );
 					window.draw( rect );
