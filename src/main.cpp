@@ -6,6 +6,7 @@
 #include <numbers>  // pi
 #include <string>   // string and stod
 #include <vector>   // vector
+#include <unordered_map>
 
 #include <SFML/Graphics.hpp>
 #include <imgui-SFML.h>
@@ -81,7 +82,21 @@ int main( [[maybe_unused]] int argc, [[maybe_unused]] char *argv[] )
 		// ImGui::GetIO().Fonts->Build();
 		// ImGui::PushFont(font1);
 
-		std::array< bool, 11 > state{ false };
+		std::unordered_map<std::string, bool> set_of_things {
+				{"The Plan", false},
+				{"Getting Started", false},
+				{"Finding Errors As Soon As Possible", false},
+				{"Handling Command Line PArameter", false},
+				{"C++ 20 So Far", false},
+				{"Reading SFML Input States", false},
+				{"Managing Game State", false},
+				{"Making Our Game Testable", false},
+				{"Making Game State Allocator Aware", false},
+				{"Add Logging To Game Engine", false},
+				{"Draw A Game Map", false},
+				{"Dialog Trees", false},
+				{"Porting from SFML To SDL", false}
+		};
 
 		sf::Clock deltaClock;
 
@@ -121,17 +136,10 @@ int main( [[maybe_unused]] int argc, [[maybe_unused]] char *argv[] )
 				ImGui::ShowDemoWindow();
 
 				ImGui::Begin( "The Plan" );
-				ImGui::Checkbox( "0  : The Plan", &state[0] );
-				ImGui::Checkbox( "1  : Getting Started", &state[1] );
-				ImGui::Checkbox( "2  : C++ 20 So Far", &state[2] );
-				ImGui::Checkbox( "3  : Reading SFML Input States", &state[3] );
-				ImGui::Checkbox( "4  : Managing Game State", &state[4] );
-				ImGui::Checkbox( "5  : Making Our Game Testable", &state[5] );
-				ImGui::Checkbox( "6  : Making Game State Allocator Aware", &state[6] );
-				ImGui::Checkbox( "7  : Add Logging To Game Engine", &state[7] );
-				ImGui::Checkbox( "8  : Draw A Game Map", &state[8] );
-				ImGui::Checkbox( "9  : Dialog Trees", &state[9] );
-				ImGui::Checkbox( "10 : Porting from SFML To SDL", &state[10] ); // Why?
+				int things_count = 0;
+				for(auto &[description, state] : set_of_things) {
+					ImGui::Checkbox(fmt::format("{} : {}", ++things_count, description).c_str(), &state);
+				}
 				ImGui::End();
 
 				window.clear( darkGrey );
